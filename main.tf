@@ -59,6 +59,17 @@ locals {
 
 }
 
+data "aws_instance" "cloud" {
+  backend = "remote"
+  
+  config = {
+    organization = " terraform-netology"
+    workspaces = {
+      name = "prod"
+      }
+  }
+}
+
 resource "aws_instance" "web" {
   ami = data.aws_ami.amazon_linux.id
   instance_type = local.web_instance_type_map[terraform.workspace]
