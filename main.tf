@@ -12,11 +12,6 @@ provider "aws" {
   secret_key = var.AWS_SECRET_ACCESS_KEY
   }
 
-resource "aws_s3_bucket" "bucket1" {
-  bucket  = "sirius-bucket"
-  acl     = "private"
-  }
-
 
 
 data "aws_ami" "amazon_linux" {
