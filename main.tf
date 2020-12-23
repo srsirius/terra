@@ -17,17 +17,7 @@ resource "aws_s3_bucket" "bucket1" {
   acl     = "private"
   }
 
-resource "aws_dynamodb_table" "terraform_state_lock" {
-  name           = "app-state"
-  read_capacity  = 1
-  write_capacity = 1
-  hash_key       = "LockID"
 
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
-}
 
 data "aws_ami" "amazon_linux" {
   most_recent = true
@@ -44,58 +34,15 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-locals {
-  web_instance_type_map = {
-    stage = "t3.micro"
-    prod  = "t3.large"
-  }
-}
 
-locals {
-  web_instance_count_map = {
-    stage = 1
-    prod  = 2
-  }
 
-}
 
-data "aws_instance" "cloud" {
-  backend = "remote"
-  
-  config = {
-    organization = " terraform-netology"
-    workspaces = {
-      name = "prod"
-      }
-  }
-}
 
 resource "aws_instance" "web" {
   ami = data.aws_ami.amazon_linux.id
-  instance_type = local.web_instance_type_map[terraform.workspace]
-  count = local.web_instance_count_map[terraform.workspace]
+  instance_type = "t3.micro"
+  
 }
 
-locals {
-  instances_stage = {
-    "t3.micro" = data.aws_ami.amazon_linux.id
-  }
-  instances_prod = {
-    "t3.large" = data.aws_ami.amazon_linux.id
-    "t3.large" = data.aws_ami.amazon_linux.id
-  }
-}
 
-resource "aws_instance" "web2" {
-
-  for_each = terraform.workspace == "prod" ? local.instances_prod : local.instances_stage
-
-  ami = each.key
-  instance_type = each.value
-
-  lifecycle {
-    create_before_destroy = true
-    ignore_changes = [ tags ]
-  }
-}
 
